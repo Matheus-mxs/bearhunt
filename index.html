@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Bear Hunt</title>
+<link rel="stylesheet" href="jogo.css">
+</head>
+<body>
+<canvas id="tela" width="800" height="450"></canvas>
+
+<div id="multiplayerUI" hidden>
+  <div class="mpPainel">
+    <section data-mp-tela="menu">
+      <h1>Multiplayer Online</h1>
+      <p class="mpSubtitulo">Coop online para até 2 jogadores</p>
+      <button id="mpAbrirCriar" type="button">Criar sala</button>
+      <button id="mpAbrirEntrar" type="button" class="secundario">Entrar em uma sala</button>
+      <button type="button" class="texto" data-mp-voltar="fechar">Voltar ao menu</button>
+      <p class="mpStatus" data-mp-status></p>
+    </section>
+
+    <section data-mp-tela="criar" hidden>
+      <h1>Criar sala</h1>
+      <label for="multiplayerNomeCriar">Seu nome</label>
+      <input id="multiplayerNomeCriar" maxlength="18" autocomplete="nickname" placeholder="Digite seu apelido">
+      <button id="multiplayerCriar" type="button">Criar sala</button>
+      <button type="button" class="texto" data-mp-voltar="menu">Voltar</button>
+      <p class="mpStatus" data-mp-status></p>
+    </section>
+
+    <section data-mp-tela="entrar" hidden>
+      <h1>Entrar em uma sala</h1>
+      <label for="multiplayerNomeEntrar">Seu nome</label>
+      <input id="multiplayerNomeEntrar" maxlength="18" autocomplete="nickname" placeholder="Digite seu apelido">
+      <label for="multiplayerCodigoEntrar">Código da sala</label>
+      <input id="multiplayerCodigoEntrar" maxlength="5" autocapitalize="characters" placeholder="Ex.: K7P4X">
+      <button id="multiplayerEntrar" type="button">Entrar</button>
+      <button type="button" class="texto" data-mp-voltar="menu">Voltar</button>
+      <p class="mpStatus" data-mp-status></p>
+    </section>
+
+    <section data-mp-tela="sala" hidden>
+      <h1>Sala de espera</h1>
+      <div class="mpCodigoLabel">Código da sala</div>
+      <div id="multiplayerCodigoSala" class="mpCodigo">------</div>
+      <p>Compartilhe esse código com seu amigo.</p>
+      <ul id="multiplayerListaJogadores" class="mpJogadores"></ul>
+      <button id="multiplayerPronto" type="button">Estou pronto</button>
+      <button id="multiplayerIniciar" type="button" hidden>Iniciar partida</button>
+      <button id="multiplayerSairSala" type="button" class="secundario">Sair da sala</button>
+      <p id="multiplayerAvisoInicio" class="mpAviso" hidden>Os dois jogadores estão conectados. A partida será adicionada na próxima etapa.</p>
+      <p class="mpStatus" data-mp-status></p>
+    </section>
+  </div>
+</div>
+
+<script>
+  // Depois de hospedar o servidor, substitua pelo endereço dele.
+  // Exemplo: https://bearhunt-servidor.onrender.com
+  window.BEARHUNT_SERVER_URL = "COLOQUE_A_URL_DO_SERVIDOR_AQUI";
+</script>
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+<script src="jogo.js"></script>
+<script src="trilha.js"></script>
+<script>
+  document.getElementById("mpAbrirCriar").addEventListener("click", function () {
+    mostrarTelaMultiplayer("criar");
+  });
+  document.getElementById("mpAbrirEntrar").addEventListener("click", function () {
+    mostrarTelaMultiplayer("entrar");
+  });
+</script>
+</body>
+</html>
