@@ -44,12 +44,14 @@
       <h1>Sala de espera</h1>
       <div class="mpCodigoLabel">Código da sala</div>
       <div id="multiplayerCodigoSala" class="mpCodigo">------</div>
+      <button id="multiplayerCopiarCodigo" type="button" class="secundario">Copiar código</button>
       <p>Compartilhe esse código com seu amigo.</p>
       <ul id="multiplayerListaJogadores" class="mpJogadores"></ul>
+      <p id="multiplayerStatusSala" class="mpStatusSala">Aguardando outro jogador...</p>
       <button id="multiplayerPronto" type="button">Estou pronto</button>
       <button id="multiplayerIniciar" type="button" hidden>Iniciar partida</button>
       <button id="multiplayerSairSala" type="button" class="secundario">Sair da sala</button>
-      <p id="multiplayerAvisoInicio" class="mpAviso" hidden>Os dois jogadores estão conectados. A partida será adicionada na próxima etapa.</p>
+      <p id="multiplayerAvisoInicio" class="mpAviso" hidden>Partida iniciada! A sincronização dos personagens será adicionada na próxima etapa.</p>
       <p class="mpStatus" data-mp-status></p>
     </section>
   </div>
@@ -58,7 +60,7 @@
 <script>
   // Depois de hospedar o servidor, substitua pelo endereço dele.
   // Exemplo: https://bearhunt-servidor.onrender.com
-  window.BEARHUNT_SERVER_URL = "https://bearhunt-server.onrender.com/";
+  window.BEARHUNT_SERVER_URL = "https://bearhunt-server.onrender.com";
 </script>
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 <script src="jogo.js"></script>

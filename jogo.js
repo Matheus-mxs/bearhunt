@@ -57,6 +57,8 @@ let multiplayerSocket = null;
 let multiplayerNome = "";
 let multiplayerSouAnfitriao = false;
 let multiplayerEstouPronto = false;
+let multiplayerDadosSala = null;
+let multiplayerPartidaIniciada = false;
 
 
 // ============================================================
@@ -2123,14 +2125,18 @@ function conectarMultiplayer() {
             multiplayerSalaAtual = dados.room;
             multiplayerSouAnfitriao = true;
             multiplayerEstouPronto = false;
+            multiplayerPartidaIniciada = false;
             atualizarTelaSalaMultiplayer(dados);
+            atualizarStatusMultiplayer("Sala criada com sucesso.", false);
         });
 
         multiplayerSocket.on("roomJoined", function (dados) {
             multiplayerSalaAtual = dados.room;
             multiplayerSouAnfitriao = false;
             multiplayerEstouPronto = false;
+            multiplayerPartidaIniciada = false;
             atualizarTelaSalaMultiplayer(dados);
+            atualizarStatusMultiplayer("Você entrou na sala.", false);
         });
 
         multiplayerSocket.on("roomUpdated", function (dados) {
@@ -2141,10 +2147,18 @@ function conectarMultiplayer() {
             atualizarStatusMultiplayer(mensagem || "Não foi possível realizar essa ação.", true);
         });
 
-        multiplayerSocket.on("gameStarting", function () {
-            atualizarStatusMultiplayer("Sala iniciada. A partida online será conectada na próxima etapa.", false);
+        multiplayerSocket.on("gameStarting", function (dados) {
+            multiplayerPartidaIniciada = true;
+            atualizarStatusMultiplayer("Partida autorizada para os jogadores da sala.", false);
             const aviso = document.getElementById("multiplayerAvisoInicio");
-            if (aviso) aviso.hidden = false;
+            if (aviso) {
+                aviso.hidden = false;
+                aviso.textContent = "Partida iniciada! A sincronização dos personagens será adicionada na próxima etapa.";
+            }
+            const pronto = document.getElementById("multiplayerPronto");
+            const iniciar = document.getElementById("multiplayerIniciar");
+            if (pronto) pronto.disabled = true;
+            if (iniciar) iniciar.disabled = true;
         });
 
         multiplayerSocket.on("disconnect", function () {
@@ -2169,10 +2183,15 @@ function abrirTelaMultiplayer() {
 }
 
 function fecharTelaMultiplayer() {
+    if (multiplayerSocket && multiplayerSalaAtual) {
+        multiplayerSocket.emit("leaveRoom");
+    }
     telaMultiplayerAtiva = false;
     multiplayerSalaAtual = null;
     multiplayerSouAnfitriao = false;
     multiplayerEstouPronto = false;
+    multiplayerDadosSala = null;
+    multiplayerPartidaIniciada = false;
     const painel = document.getElementById("multiplayerUI");
     if (painel) painel.hidden = true;
 }
@@ -2193,23 +2212,72 @@ function atualizarStatusMultiplayer(mensagem, erro) {
 }
 
 function atualizarTelaSalaMultiplayer(dados) {
+    if (!dados) return;
+    multiplayerDadosSala = dados;
     mostrarTelaMultiplayer("sala");
 
+    const codigoSala = dados.room || multiplayerSalaAtual || "------";
     const codigo = document.getElementById("multiplayerCodigoSala");
-    if (codigo) codigo.textContent = dados.room || multiplayerSalaAtual || "------";
+    if (codigo) codigo.textContent = codigoSala;
 
+    const jogadores = dados.players || [];
     const lista = document.getElementById("multiplayerListaJogadores");
     if (lista) {
         lista.innerHTML = "";
-        (dados.players || []).forEach(function (jogadorSala) {
+        jogadores.forEach(function (jogadorSala, indice) {
             const item = document.createElement("li");
-            item.textContent = (jogadorSala.name || "Jogador") + (jogadorSala.ready ? " — Pronto" : " — Aguardando");
+            const identificacao = jogadorSala.host ? " — Anfitrião" : " — Jogador 2";
+            const estado = jogadorSala.ready ? " — Pronto" : " — Aguardando";
+            item.textContent = (jogadorSala.name || ("Jogador " + (indice + 1))) + identificacao + estado;
+            if (jogadorSala.id === (multiplayerSocket && multiplayerSocket.id)) {
+                item.textContent += " — Você";
+            }
             lista.appendChild(item);
         });
     }
 
+    const statusSala = document.getElementById("multiplayerStatusSala");
+    const todosProntos = jogadores.length === 2 && jogadores.every(function (jogador) { return jogador.ready; });
+    if (statusSala) {
+        if (jogadores.length < 2) {
+            statusSala.textContent = "Aguardando outro jogador...";
+        } else if (todosProntos) {
+            statusSala.textContent = "Os dois jogadores estão prontos!";
+        } else {
+            statusSala.textContent = "Aguardando os jogadores ficarem prontos...";
+        }
+    }
+
+    const pronto = document.getElementById("multiplayerPronto");
+    if (pronto) {
+        pronto.disabled = multiplayerPartidaIniciada;
+        pronto.textContent = multiplayerEstouPronto ? "Cancelar pronto" : "Estou pronto";
+    }
+
     const iniciar = document.getElementById("multiplayerIniciar");
-    if (iniciar) iniciar.hidden = !multiplayerSouAnfitriao;
+    if (iniciar) {
+        iniciar.hidden = !multiplayerSouAnfitriao;
+        iniciar.disabled = multiplayerPartidaIniciada || jogadores.length < 2 || !todosProntos;
+        iniciar.textContent = todosProntos ? "Iniciar partida" : "Aguardando jogadores";
+    }
+
+    const aviso = document.getElementById("multiplayerAvisoInicio");
+    if (aviso && !multiplayerPartidaIniciada) aviso.hidden = true;
+}
+
+function copiarCodigoSalaMultiplayer() {
+    const codigo = multiplayerSalaAtual || (multiplayerDadosSala && multiplayerDadosSala.room);
+    if (!codigo) return;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(codigo).then(function () {
+            atualizarStatusMultiplayer("Código copiado: " + codigo, false);
+        }).catch(function () {
+            atualizarStatusMultiplayer("Código da sala: " + codigo, false);
+        });
+    } else {
+        atualizarStatusMultiplayer("Código da sala: " + codigo, false);
+    }
 }
 
 function criarSalaMultiplayer() {
@@ -2261,6 +2329,8 @@ function sairSalaMultiplayer() {
     multiplayerSalaAtual = null;
     multiplayerSouAnfitriao = false;
     multiplayerEstouPronto = false;
+    multiplayerDadosSala = null;
+    multiplayerPartidaIniciada = false;
     mostrarTelaMultiplayer("menu");
 }
 
@@ -2269,6 +2339,7 @@ function configurarInterfaceMultiplayer() {
     const entrar = document.getElementById("multiplayerEntrar");
     const pronto = document.getElementById("multiplayerPronto");
     const iniciar = document.getElementById("multiplayerIniciar");
+    const copiar = document.getElementById("multiplayerCopiarCodigo");
     const voltar = document.querySelectorAll("[data-mp-voltar]");
     const sair = document.getElementById("multiplayerSairSala");
 
@@ -2276,6 +2347,7 @@ function configurarInterfaceMultiplayer() {
     if (entrar) entrar.addEventListener("click", entrarSalaMultiplayer);
     if (pronto) pronto.addEventListener("click", alternarProntoMultiplayer);
     if (iniciar) iniciar.addEventListener("click", iniciarPartidaMultiplayer);
+    if (copiar) copiar.addEventListener("click", copiarCodigoSalaMultiplayer);
     if (sair) sair.addEventListener("click", sairSalaMultiplayer);
     voltar.forEach(function (botao) {
         botao.addEventListener("click", function () {
