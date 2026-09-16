@@ -1,0 +1,22 @@
+html,body{margin:0;padding:0;background:#000;min-height:100%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif}
+canvas{display:block;background:#000;image-rendering:pixelated;image-rendering:crisp-edges;max-width:100vw;max-height:100vh}
+#multiplayerUI{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;background:rgba(0,0,0,.72);overflow:auto}
+#multiplayerUI[hidden]{display:none}
+.mpPainel{width:min(92vw,390px);max-height:92vh;overflow:auto;box-sizing:border-box;padding:25px 22px;border:3px solid #d9f4d0;border-radius:16px;background:linear-gradient(180deg,#183b2a,#0d2118);color:#fff;text-align:center;box-shadow:0 0 0 3px rgba(0,0,0,.5)}
+.mpPainel h1{margin:0 0 8px;font-size:28px;color:#eaffdf;text-shadow:2px 2px #000}
+.mpSubtitulo,.mpPainel p{color:#d2e5d0}
+.mpPainel label{display:block;text-align:left;margin:15px 0 6px;font-weight:bold;color:#eaffdf}
+.mpPainel input{width:100%;box-sizing:border-box;padding:12px;border:2px solid #86ad7d;border-radius:8px;background:#07140d;color:#fff;font-size:18px;outline:none;text-transform:none}
+.mpPainel input:focus{border-color:#fff}
+.mpPainel button{display:block;width:100%;margin:12px 0;padding:13px 10px;border:2px solid #dfffd5;border-radius:9px;background:#3f9b52;color:#fff;font-size:18px;font-weight:bold;cursor:pointer}
+.mpPainel button.secundario{background:#275d38}
+.mpPainel button.texto{background:transparent;border-color:transparent;color:#d2e5d0;font-size:15px;padding:7px}
+.mpPainel button:hover{filter:brightness(1.15)}
+.mpStatus{min-height:20px;margin:12px 0 0;font-size:14px;color:#cdebc5!important}
+.mpStatus.erro{color:#ffb1a8!important}
+.mpCodigoLabel{margin-top:14px;color:#c7dfc0}
+.mpCodigo{margin:8px auto 12px;padding:10px;letter-spacing:8px;font-size:34px;font-weight:bold;color:#fff;background:#07140d;border:2px dashed #b7e9a8;border-radius:9px}
+.mpJogadores{margin:18px 0;padding:0;list-style:none;text-align:left}
+.mpJogadores li{margin:8px 0;padding:10px;border-radius:7px;background:rgba(255,255,255,.1);color:#fff}
+.mpAviso{padding:10px;border-radius:8px;background:#315c35;color:#edffea!important;font-size:14px}
+@media(max-width:500px){.mpPainel h1{font-size:24px}.mpCodigo{font-size:28px;letter-spacing:5px}}
